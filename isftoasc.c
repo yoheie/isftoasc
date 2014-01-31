@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 	/***** Check if the File is ISF format *****/
 	fgets(check_str, 9, isffile);
 	if ((strcmp(check_str, ":WFMPRE:")) != 0) {
-		fprintf(stderr, " Error : File %s seems not ISF file\n", argv[1]);
+		fprintf(stderr, " Error : File %s seems not ISF file\n", (argc == 1) ? "(stdin)" : argv[1]);
 		fclose(isffile);
 		return 1;
 	}
