@@ -5,7 +5,10 @@
 *    !!!!! NO WARRANTY !!!!!  USE AT YOUR OWN RISK.                  *
 *     Do not contact or ask Tektronix, Inc. about this program.      *
 *                                                                    *
-* 2014-01-31  Ver. 0.1.7               Yohei Endo <yoheie@gmail.com> *
+* 2015-03-11  Ver. 0.2.0               Yohei Endo <yoheie@gmail.com> *
+*                                                                    *
+* Special thanks to:                                                 *
+*   Richard Theil, reporting header information and some issues.     *
 *********************************************************************/
 #include <stdio.h>
 #include <string.h>
@@ -15,7 +18,7 @@
 #include <io.h>
 #endif
 
-#define ISFTOASC_VERSION "0.1.7"
+#define ISFTOASC_VERSION "0.2.0"
 
 #define ISF_HEADER_SIZE_MAX 511
 
