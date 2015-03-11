@@ -67,9 +67,11 @@ int read_curve_asc(FILE *isffile);
 int main(int argc, char *argv[])
 {
 	FILE *isffile;
+	const char *fname;
 	int i;
 	int c;
-	char check_str[14];
+	char check_str[8];
+	int wfmpre_found;
 
 	if ((argc != 1) && (argc != 2)) {
 		fprintf(stderr, " Usage : isftoasc [filename]\n");
@@ -81,45 +83,80 @@ int main(int argc, char *argv[])
 		_setmode(_fileno(stdin), _O_BINARY);
 #endif
 		isffile = stdin;
+		fname = "(stdin)";
 	}
 	else {
 		if ((isffile = fopen(argv[1], "rb")) == NULL) {
 			fprintf(stderr, " Error : Can't Open file %s\n", argv[1]);
 			return 1;
 		}
+		fname = argv[1];
 	}
 
 	printf("# Converted by isftoasc Ver. " ISFTOASC_VERSION "\n");
 
-	/***** Check if the File is ISF format *****/
-	fgets(check_str, 9, isffile);
-	if ((strcmp(check_str, ":WFMPRE:")) != 0) {
-		fprintf(stderr, " Error : File %s seems not ISF file\n", (argc == 1) ? "(stdin)" : argv[1]);
+	/***** Check if the File starts with ':' *****/
+	if (((c = fgetc(isffile)) == EOF) || (c != ':')) {
+		fprintf(stderr, " Error : File %s seems not ISF file\n", fname);
 		fclose(isffile);
 		return 1;
 	}
 
-	/***** Read Header to isf_header_str[] *****/
-	i = 0;
-	while (((c = fgetc(isffile)) != EOF) && (c != ':')) {
-		if (i >= ISF_HEADER_SIZE_MAX) {
-			fprintf(stderr, " Error : Too larege Header\n");
+	wfmpre_found = 0;
+	do {
+		/***** Get Header *****/
+		i = 0;
+		while ((c = fgetc(isffile)) != EOF) {
+			if (i >= (sizeof(check_str) - 1)) {
+				fprintf(stderr, " Error : Too larege Header\n");
+				fclose(isffile);
+				return 1;
+			}
+			check_str[i] = c;
+			i++;
+			if ((c == ':') || (c == ' ')) {
+				break;
+			}
+		}
+		check_str[i] = '\0';
+		if ((strcmp(check_str, "WFMPRE:")) != 0) {
+			break;
+		}
+		wfmpre_found = 1;
+
+		/***** Read Header to isf_header_str[] *****/
+		i = 0;
+		while (((c = fgetc(isffile)) != EOF) && (c != ':')) {
+			if (i >= ISF_HEADER_SIZE_MAX) {
+				fprintf(stderr, " Error : Too larege Header\n");
+				fclose(isffile);
+				return 1;
+			}
+			isf_header_str[i] = c;
+			i++;
+		}
+		isf_header_str[i] = '\0';
+
+		/***** Init Header *****/
+		if ((init_isf_header() != 0)) {
 			fclose(isffile);
 			return 1;
 		}
-		isf_header_str[i] = c;
-		i++;
-	}
-	isf_header_str[i] = '\0';
+	} while (1);
 
-	/***** Init and Check Header *****/
-	if ((init_isf_header() != 0) || (check_isf_header() != 0)) {
+	/***** Check if WFMPRE exists *****/
+	if (!wfmpre_found) {
+		fprintf(stderr, " Error : File %s seems not ISF file\n", fname);
+		fclose(isffile);
+	}
+
+	/***** Check Header Value *****/
+	if (check_isf_header() != 0) {
 		fclose(isffile);
 		return 1;
 	}
 
 	/***** Read, Calc Data and Print *****/
-	fgets(check_str, 7, isffile);
 	if (strcmp(check_str, "CURVE ") != 0) {
 		fprintf(stderr, " Error : CURVE read error\n");
 		fclose(isffile);
