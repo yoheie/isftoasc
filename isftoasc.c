@@ -217,8 +217,7 @@ int init_isf_header(void)
 			isf_header.yunit = header_value;
 		}
 		else {
-			fprintf(stderr, " Error : Unsupported Header %s\n", header_name);
-			return 1;
+			fprintf(stderr, " Warning : Unsupported Header %s\n", header_name);
 		}
 		printf("# %s %s\n", header_name, header_value);
 	} while ((header_name = strtok(NULL, " ")) != NULL);
