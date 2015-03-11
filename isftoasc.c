@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 		fclose(isffile);
 		return 1;
 	}
-	if (strcmp(isf_header.encdg, "BIN") == 0) {
+	if ((strcmp(isf_header.encdg, "BIN") == 0) || (strcmp(isf_header.encdg, "BINARY") == 0)) {
 		if (read_curve_bin(isffile) != 0) {
 			fprintf(stderr, " Error : CURVE read error\n");
 			fclose(isffile);
@@ -244,8 +244,8 @@ int check_isf_header(void)
 		fprintf(stderr, " Error : Wrong BIT_NR (%d)\n", isf_header.bit_nr);
 		return 1;
 	}
-	/********** ENCDG : ASC or BIN **********/
-	if ((strcmp(isf_header.encdg,"ASC") != 0) && (strcmp(isf_header.encdg,"BIN") != 0)) {
+	/********** ENCDG : ASC or BIN or BINARY **********/
+	if ((strcmp(isf_header.encdg,"ASC") != 0) && (strcmp(isf_header.encdg,"BIN") != 0) && (strcmp(isf_header.encdg,"BINARY") != 0)) {
 		fprintf(stderr, " Error : Wrong ENCDG (%s)\n", isf_header.encdg);
 		return 1;
 	}
