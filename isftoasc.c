@@ -181,7 +181,10 @@ int main(int argc, char *argv[])
 	}
 
 	/***** Check if isffile is finished *****/
-	if ((c = fgetc(isffile)) != EOF) {
+	if ((c = fgetc(isffile)) == '\n') {
+		c = fgetc(isffile);
+	}
+	if (c != EOF) {
 		fprintf(stderr, " Error : The file Contains more data\n");
 		fclose(isffile);
 		return 1;
@@ -356,11 +359,6 @@ int read_curve_bin(FILE *isffile)
 		x = isf_header.xincr * i;
 		/* x = isf_header.xzero + (isf_header.xincr * (i - isf_header.pt_off)); */
 		printf("%E %E\n", x, y);
-	}
-
-	fgets(tmp_check, 2, isffile);
-	if (strcmp(tmp_check, "\n") != 0) {
-		return 1;
 	}
 
 	return 0;
